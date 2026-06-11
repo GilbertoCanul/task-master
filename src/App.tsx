@@ -1,67 +1,57 @@
-import './App.css'
-import { useEffect, useState } from 'react';
-import { TaskItem } from './TaskItem';
-
-// Definimos la estructura de nuestra Tarea
-interface Task {
-  id: number;
-  text: string;
-}
+import { useState, useEffect } from 'react';
+import { TaskForm } from './components/TaskForm';
+import type { Task } from './types/task.types';
+import { TaskItem } from './components/TaskItem/TaskItem';
 
 function App() {
+  // 1. Lazy Initializer: Lee del storage al arrancar (Sincrónico)
   const [tasks, setTasks] = useState<Task[]>(() => {
-    // Esta función solo se ejecuta en el primer renderizado
-    const savedTasks = localStorage.getItem('my-tasks');
-    return savedTasks ? JSON.parse(savedTasks) : [];
+    const savedTasks = localStorage.getItem('tasks');
+    try {
+      return savedTasks ? JSON.parse(savedTasks) : [];
+    } catch (e) {
+      return []; // Por si los datos en el storage están corruptos
+    }
   });
-  const [inputValue, setInputValue] = useState('');
 
-  const addTask = () => {
-    if (inputValue.trim() === '') return;
-
-    // Creamos una nueva tarea
-    const newTask: Task = { id: Date.now(), text: inputValue };
-
-    // Actualizamos el estado (el spread operator ... nos ayuda a mantener lo anterior)
-    setTasks([...tasks, newTask]);
-    setInputValue(''); // Limpiamos el input
-  };
-
-  // Esta función va dentro de tu componente App, al mismo nivel que addTask
-  const deleteTask = (id: number) => {
-    // Creamos un nuevo arreglo excluyendo la tarea con el ID dado
-    setTasks(tasks.filter((task) => task.id !== id));
-  };
-
-  // 1. Guardar cada vez que 'tasks' cambia
+  // Save tasks to LocalStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('my-tasks', JSON.stringify(tasks));
+    localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  // 2. Cargar una sola vez al iniciar la App
-  useEffect(() => {
-    const savedTasks = localStorage.getItem('my-tasks');
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
-    }
-  }, []);
+  const addTask = (data: Omit<Task, 'id' | 'completed'>) => {
+    const newTask: Task = {
+      ...data,
+      id: crypto.randomUUID(), // Standard industry way to create unique IDs
+      completed: false,
+    };
+    setTasks((prev) => [...prev, newTask]);
+  };
+
+  const deleteTask = (id: string) => {
+    // We filter the array creating a NEW one without the deleted task
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+  };
 
   return (
-    <div>
-      <h1>Task Master</h1>
-      <input
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-      />
-      <button onClick={addTask}>Agregar</button>
-
-      <ul>
-        {tasks.map((task) => (
-          <li key={task.id}>
+    // 'min-h-screen bg-gray-50' asegura que el fondo ocupe toda la pantalla
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      {/* 'max-w-2xl mx-auto' centra el contenido y limita el ancho */}
+      <main className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+        
+        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+          Task Master
+        </h1>
+        
+        <TaskForm onAddTask={addTask} />
+        
+        <ul className="mt-8 space-y-2">
+          {tasks.map((task) => (
             <TaskItem key={task.id} task={task} onDelete={deleteTask} />
-          </li>
-        ))}
-      </ul>
+          ))}
+        </ul>
+        
+      </main>
     </div>
   );
 }
