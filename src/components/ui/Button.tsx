@@ -22,10 +22,12 @@ export const Button = ({
     danger: "bg-red-100 hover:bg-red-200 text-red-600",
   };
 
+  const variantStyles = variant ? variants[variant] : "";
+
   return (
     <button 
       {...props} 
-      className={`${baseStyles} ${variants[variant]} ${className}`}
+      className={`${baseStyles} ${variantStyles} ${className}`}
     >
       {children}
     </button>
