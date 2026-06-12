@@ -3,15 +3,27 @@ import { Button } from '../ui/Button';
 
 interface TaskItemProps {
   task: Task;
-  onDelete: (id: string) => void;
-  onToggle: () => void;
+  onDeleteTaskRequested: (id: string) => void;
+  onToggleTaskCompletionRequested: (id: string) => void;
 }
 
-export const TaskItem = ({ task, onDelete, onToggle }: TaskItemProps) => {
+export const TaskItem = ({ task, onDeleteTaskRequested, onToggleTaskCompletionRequested }: TaskItemProps) => {
+  const confirmDeletion = () => {
+    // window.confirm es un método nativo del navegador que devuelve true/false
+    const isConfirmed = window.confirm(
+      `¿Estás seguro de que quieres eliminar "${task.title}"?`
+    );
+
+    // 2. Solo ejecutamos la eliminación si el usuario dijo que sí
+    if (isConfirmed) {
+      onDeleteTaskRequested(task.id);
+    }
+  };
+
   return (
     <li className="flex justify-between items-center p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-      <div 
-        onClick={onToggle} 
+      <div
+        onClick={() => onToggleTaskCompletionRequested(task.id)}
         className="cursor-pointer flex flex-col flex-grow"
       >
         {/* Usamos template literals para aplicar clases condicionales */}
@@ -24,8 +36,11 @@ export const TaskItem = ({ task, onDelete, onToggle }: TaskItemProps) => {
           </p>
         )}
       </div>
-      
-      <Button variant="danger" onClick={() => onDelete(task.id)} className="ml-4">
+
+      <Button
+      variant="danger"
+      onClick={confirmDeletion}
+      className="ml-4">
         Delete
       </Button>
     </li>
