@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+@theme {
+  /* You can define your theme variables here */
+}
+
+/* This manually defines the dark mode selector */
+@variant dark (&:where(.dark, .dark *));
