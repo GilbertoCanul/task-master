@@ -3,7 +3,7 @@ import React from 'react';
 // Extendemos los atributos estándar de un botón HTML para no perder nada (onClick, disabled, etc.)
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'danger'; // Opcional: para manejar diferentes estilos
+  variant?: 'primary' | 'danger' | 'ghost';
 }
 
 export const Button = ({ 
@@ -20,6 +20,7 @@ export const Button = ({
   const variants = {
     primary: "bg-blue-600 hover:bg-blue-700 text-white",
     danger: "bg-red-100 hover:bg-red-200 text-red-600",
+    ghost: "bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
   };
 
   const variantStyles = variant ? variants[variant] : "";
